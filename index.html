@@ -356,6 +356,44 @@
   }
   .chat-head-left{font-weight:800}
   .mobile-fs-label{display:none}
+  .top-stats{display:flex;gap:7px;align-items:center;margin-left:7px}
+  .mini-stat{background:#0e0e10;border:1px solid var(--line);border-radius:7px;padding:6px 8px;font-size:11px;color:#b8b8c2;white-space:nowrap}
+  .mini-stat b{color:#fff}
+  .settings-card{margin-top:10px;border:1px solid #303038;border-radius:9px;background:#1f1f23;overflow:hidden}
+  .settings-card summary{cursor:pointer;padding:10px;font-size:12px;font-weight:900;color:#ddd;user-select:none}
+  .settings-body{padding:0 10px 10px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .settings-body label{font-size:10px;color:#9f9faa;display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px;font-weight:800}
+  .settings-body .wide{grid-column:1/-1}
+  .context-tools{margin-top:9px;display:grid;gap:8px}
+  .quick-actions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .quick-action{border:1px solid #414149;background:#27272c;color:#fff;border-radius:7px;padding:7px 5px;font-size:11px;font-weight:800;cursor:pointer}
+  .quick-action:hover{background:#393940}
+  .tool-row{display:flex;gap:6px;align-items:center}
+  .tool-row input{flex:1;min-width:0}
+  .tool-row button{white-space:nowrap}
+  .hype-wrap{display:none;background:#211934;border-bottom:1px solid #583a86;padding:7px 10px}
+  .hype-wrap.show{display:block}
+  .hype-top{display:flex;justify-content:space-between;font-size:11px;font-weight:900;margin-bottom:5px}
+  .hype-track{height:7px;border-radius:999px;background:#0f0c14;overflow:hidden;border:1px solid #493565}
+  .hype-fill{height:100%;width:0%;background:linear-gradient(90deg,#9147ff,#ff66d8);transition:width .25s}
+  .pinned-bar{display:none;padding:7px 10px;background:#202026;border-bottom:1px solid #3d3d45;font-size:12px;color:#dedee4}
+  .pinned-bar.show{display:block}
+  .pinned-bar b{color:#b48bff}
+  .sub-event{margin:6px 1px;border-radius:8px;padding:8px 10px;background:linear-gradient(90deg,rgba(0,245,147,.11),rgba(145,71,255,.08));border:1px solid rgba(0,245,147,.38);font-size:13px}
+  .sub-event.gift{border-color:#ffd166;background:linear-gradient(90deg,rgba(255,209,102,.14),rgba(145,71,255,.07))}
+  .sub-event .sub-title{font-weight:900;color:#79f2be}
+  .sub-event.gift .sub-title{color:#ffd166}
+  .poll-card{margin:7px 1px;padding:10px;border-radius:9px;background:#202026;border:1px solid #45454e;font-size:12px}
+  .poll-q{font-weight:900;margin-bottom:7px}
+  .poll-option{display:grid;grid-template-columns:1fr auto;gap:7px;align-items:center;margin:5px 0}
+  .poll-bar{height:5px;border-radius:999px;background:#35353d;overflow:hidden;grid-column:1/-1}
+  .poll-bar > span{display:block;height:100%;background:#9147ff;transition:width .3s}
+  .deleted-msg{color:#73737e;font-style:italic}
+  .chat-filter{background:#0e0e10;color:#ddd;border:1px solid #414149;border-radius:6px;padding:6px;font-size:10px;max-width:118px}
+  .sound-btn{border:1px solid #414149;background:#27272c;color:#ddd;border-radius:6px;padding:6px 7px;font-size:11px;cursor:pointer}
+  .memory-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px;max-height:55px;overflow:auto}
+  .memory-chip{font-size:10px;background:#292930;border:1px solid #3c3c45;border-radius:999px;padding:4px 6px;color:#cfcfd7;max-width:190px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .msg.highlight{background:rgba(145,71,255,.10);border-radius:4px}
   @media(max-width:900px){
     body{overflow:auto;height:auto}
     .app{grid-template-columns:1fr;height:auto}
@@ -371,6 +409,11 @@
     body.chat-only .chat-feed{font-size:15px}
     body.chat-only .msg{font-size:15px;line-height:1.48;padding:4px 2px}
     body.chat-only .composer{padding-bottom:max(10px,env(safe-area-inset-bottom))}
+    .quick-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .settings-body{grid-template-columns:1fr}
+    .settings-body .wide{grid-column:auto}
+    .top-stats{display:none}
+    .chat-filter{max-width:88px}
   }
 </style>
 </head>
@@ -380,9 +423,10 @@
     <div class="topbar">
       <div class="live">LIVE</div>
       <div>
-        <div class="channel">YOUR CHANNEL • #1 STREAMER</div>
+        <div class="channel" id="channelTitle">YOUR CHANNEL • #1 STREAMER</div>
         <div class="subtext" id="streamStatus">Worldwide live audience simulator</div>
       </div>
+      <div class="top-stats"><div class="mini-stat">Follows <b id="followStat">+0</b></div><div class="mini-stat">Subs <b id="subStat">0</b></div></div>
       <div class="viewer-pill"><span class="viewer-dot"></span><span id="viewerCount">421,842</span></div>
     </div>
 
@@ -432,6 +476,14 @@
             <option value="wild">Wild</option>
           </select>
         </div>
+        <div class="control">
+          <label><span>Sub / gift activity</span><b id="subRateText">Medium</b></label>
+          <input id="subRate" type="range" min="0" max="100" value="42">
+        </div>
+        <div class="control">
+          <label><span>Off-topic realism</span><b id="irrelevantRateText">8%</b></label>
+          <input id="irrelevantRate" type="range" min="0" max="20" value="8">
+        </div>
       </div>
 
       <div class="event-title">What are you doing right now?</div>
@@ -461,7 +513,24 @@
         <div class="activity-help">
           This context stays active <b>until you change it</b> and is saved on this device. Example: choose <b>Sports Watchalong</b> and type <b>Watching the Cubs game</b>; chat and donations will keep talking about the Cubs/baseball/game.
         </div>
+        <div class="context-tools">
+          <div class="tool-row"><input id="liveFacts" type="text" placeholder='Live facts/score: "Cubs 3 - Cardinals 2, bottom 7th, 2 outs"'><button class="event-btn" id="updateFactsBtn">Update Live Facts</button></div>
+          <div><div class="event-section-label">Context quick actions</div><div class="quick-actions" id="quickActions"></div></div>
+          <div class="tool-row"><button class="event-btn" id="pollBtn">Start Poll</button><button class="event-btn" id="predictionBtn">Start Prediction</button><button class="event-btn" id="pinContextBtn">Pin Context</button></div>
+        </div>
       </div>
+
+      <details class="settings-card">
+        <summary>Streamer identity, lore & custom emotes</summary>
+        <div class="settings-body">
+          <div><label>Streamer name</label><input id="creatorName" type="text" placeholder="Your channel name"></div>
+          <div><label>Nicknames</label><input id="creatorNicknames" type="text" placeholder="bro, goat, nickname"></div>
+          <div><label>Favorite teams / recurring lore</label><input id="creatorTeams" type="text" placeholder="Cubs, Bears"></div>
+          <div><label>Custom emotes</label><input id="creatorEmotes" type="text" placeholder="MyW, MyL, LOCKIN"></div>
+          <div class="wide tool-row"><button class="event-btn primary" id="saveProfileBtn">Save Streamer Profile</button><button class="event-btn" id="clearMemoryBtn">Clear Stream Memory</button></div>
+          <div class="wide"><label>Current remembered moments / inside jokes</label><div class="memory-chips" id="memoryChips"></div></div>
+        </div>
+      </details>
 
       <div class="event-title">Make chat react to something</div>
       <div class="event-grid">
@@ -533,13 +602,14 @@
       <div class="event-title">One-off moment: tell chat what just happened</div>
       <div class="react-row">
         <input id="contextInput" type="text" placeholder='Example: "I spilled my drink" or "I just said ranch is overrated"'>
-        <button class="event-btn primary" id="reactBtn">React</button>
+        <button class="event-btn primary" id="reactBtn">React + Remember</button>
       </div>
 
       <div class="utility-row">
         <button class="utility-btn" id="pauseBtn">Pause Chat</button>
         <button class="utility-btn" id="burstBtn">Random Hype Burst</button>
         <button class="utility-btn" id="donateBtn">Force Donation</button>
+        <button class="utility-btn" id="subBtn">Force Sub / Gift</button>
         <button class="utility-btn" id="clearBtn">Clear Chat</button>
       </div>
     </div>
@@ -552,10 +622,16 @@
         <span class="context-chip" title="Persistent stream context"><span>•</span><b id="chatContextLabel">Just Chatting</b></span>
       </div>
       <div class="chat-head-right">
+        <select class="chat-filter" id="chatFilter" title="Filter/highlight chat">
+          <option value="all">All chat</option><option value="questions">Questions</option><option value="money">Donos + Subs</option><option value="mentions">Mentions</option>
+        </select>
+        <button class="sound-btn" id="soundBtn" title="Toggle alert sounds">🔇</button>
         <button class="fullscreen-chat-btn" id="fullscreenChatBtn">⛶ <span class="mobile-fs-label">Full Chat</span><span class="desktop-fs-label">Fullscreen</span></button>
       </div>
     </div>
     <div class="paused-banner" id="pausedBanner">CHAT PAUSED</div>
+    <div class="hype-wrap" id="hypeTrain"><div class="hype-top"><span id="hypeLabel">HYPE TRAIN • LEVEL 1</span><span id="hypePct">0%</span></div><div class="hype-track"><div class="hype-fill" id="hypeFill"></div></div></div>
+    <div class="pinned-bar" id="pinnedBar"><b>PINNED:</b> <span id="pinnedText"></span></div>
     <div class="chat-feed" id="chatFeed"></div>
     <div class="composer">
       <div class="meta"><span>Fake chat only • local simulator</span><span><span class="kbd">Enter</span> send</span></div>
@@ -584,6 +660,22 @@
   const chatContextLabel = $('#chatContextLabel');
   const fullscreenChatBtn = $('#fullscreenChatBtn');
   const alertEl = $('#floatingAlert');
+  const subRateSlider = $('#subRate');
+  const irrelevantRateSlider = $('#irrelevantRate');
+  const liveFactsInput = $('#liveFacts');
+  const quickActionsEl = $('#quickActions');
+  const hypeTrainEl = $('#hypeTrain');
+  const hypeFillEl = $('#hypeFill');
+  const hypeLabelEl = $('#hypeLabel');
+  const hypePctEl = $('#hypePct');
+  const pinnedBarEl = $('#pinnedBar');
+  const pinnedTextEl = $('#pinnedText');
+  const followStatEl = $('#followStat');
+  const subStatEl = $('#subStat');
+  const chatFilterEl = $('#chatFilter');
+  const soundBtnEl = $('#soundBtn');
+  const memoryChipsEl = $('#memoryChips');
+  const channelTitleEl = $('#channelTitle');
   const recentMessages = [];
   const MAX_RECENT = 650;
   let paused = false;
@@ -597,6 +689,28 @@
   let activityMode = 'chatting';
   let activityDetail = '';
   let contextProfile = { topic:'', keywords:[], category:'chatting', entities:[] };
+  let streamFacts = '';
+  let creatorProfile = {name:'', nicknames:[], teams:[], emotes:[]};
+  let regularViewers = [];
+  let recentChatLog = [];
+  let streamMemories = [];
+  let insideJokes = [];
+  let currentFilter = 'all';
+  let soundEnabled = false;
+  let audioCtx = null;
+  let momentum = 0;
+  let viralPhrase = '';
+  let viralUntil = 0;
+  let emoteOnlyUntil = 0;
+  let followerOnlyUntil = 0;
+  let lastDonation = null;
+  let streamFollowers = 0;
+  let streamSubs = 0;
+  let hype = {active:false,level:1,points:0,lastAction:0};
+  let activePoll = null;
+  let lastModAction = 0;
+  let lastMilestone = 0;
+  let currentTopicGeneration = 0;
 
   const colors = ['#ff4500','#00a8ff','#00d084','#c77dff','#ff7eb6','#f5a623','#39c5bb','#ff5f5f','#8ee000','#6e8cff','#e26ee5','#ffd166','#64d2ff','#ff9f0a','#a78bfa','#34d399'];
 
@@ -1800,6 +1914,389 @@
   }
 
 
+
+  const attentionSeekers = [
+    'BRO READ MY MESSAGE','say hi please I have been here for 3 hours','ITS MY BIRTHDAY CHAT','can you say hi to Brazil','notice me bro 😭','I donated last stream remember me','mods please pin this for no reason','read the message above this one','I have typed this 19 times','my message got eaten by chat again','PLEASE LOOK AT CHAT','bro missed my question again','shoutout my dog he is watching','can you say happy birthday to my friend','day 47 of asking for a hello'
+  ];
+
+  const irrelevantChat = [
+    'anyone else eating cereal rn','what time is it for everyone','I just burned my toast','chat my phone is on 2%','should I do my homework yes or no','random question do penguins have knees','my cat just stepped on my keyboard','who else watching from bed','I have work tomorrow this is irresponsible','what did everyone eat today','I just sneezed so hard my headset fell off','my wifi is fighting for its life','chat settle this is water wet','I am watching on a cracked ipad from 2017','somebody remind me to charge my phone','I forgot why I opened twitch','I am making ramen during this','my dog is staring at the TV','just got home what did I miss','I have class in 6 hours W decisions'
+  ];
+
+  const internationalLines = {
+    es:['SALUDOS DESDE MÉXICO','W stream desde España','chat va demasiado rápido 😭','bro estamos viendo desde Latinoamérica','VAMOSSSS','no puedo creer lo que acaba de pasar','saludos desde Argentina'],
+    pt:['SALVE DO BRASIL','W stream Brasil tá aqui','chat rápido demais kkkkk','VAMOOOO','não acredito nisso 😭','Brasil no chat'],
+    fr:['salut de France','W stream depuis la France','le chat va trop vite 😭','incroyable ce stream','LETS GOOO France'],
+    de:['Grüße aus Deutschland','W stream aus Deutschland','chat ist komplett verrückt','LETS GOOO','das war wild 😭']
+  };
+
+  const personalityTypes = [
+    'roaster','wholesome','analyst','questioner','emote','lorekeeper','contrarian','chill','hype','foodcritic','sportsnerd','troll','lurker'
+  ];
+
+  function randomPreferredMode(){
+    return rnd(['chatting','gaming','irl','watching','music','story','food','qa','sports','tierlist','shopping','other']);
+  }
+
+  function initRegulars(){
+    try{
+      const saved=JSON.parse(localStorage.getItem('twitchSimRegularsV5')||'null');
+      if(Array.isArray(saved) && saved.length>=120){regularViewers=saved;return;}
+    }catch(e){}
+    const seen=new Set();
+    regularViewers=[];
+    for(let i=0;i<240;i++){
+      let name=username();
+      while(seen.has(name)) name=username();
+      seen.add(name);
+      const isMod=i<6;
+      const tenure=1+Math.floor(Math.random()*58);
+      const p=rnd(personalityTypes);
+      regularViewers.push({
+        name,color:rnd(colors),personality:p,
+        preferred:[randomPreferredMode(),randomPreferredMode()],
+        tenureMonths:tenure,isMod,isVip:!isMod&&chance(.06),
+        subbed:isMod||chance(.72),prime:chance(.22),
+        typing:rnd(['normal','lower','normal','normal','caps','punct','messy']),
+        country:rnd(['US','US','US','US','CA','UK','AU','MX','BR','FR','DE','ES']),
+        donorStyle:rnd(['question','wholesome','joke','roast','random','debate'])
+      });
+    }
+    try{localStorage.setItem('twitchSimRegularsV5',JSON.stringify(regularViewers));}catch(e){}
+  }
+
+  function chatterBadges(ch){
+    if(!ch) return badges();
+    const out=[];
+    if(ch.isMod) out.push(['mod','M']);
+    else if(ch.isVip) out.push(['vip','V']);
+    if(ch.subbed) out.push(['sub',ch.prime?'P':'★']);
+    if(ch.tenureMonths>=24 && out.length<2) out.push(['og','OG']);
+    return out.slice(0,2);
+  }
+
+  function pickChatter(opts={}){
+    if(!regularViewers.length) initRegulars();
+    const wantRegular = opts.regular===true || chance(opts.donor?.72:.60);
+    if(wantRegular){
+      let pool=regularViewers;
+      if(opts.mod) pool=regularViewers.filter(x=>x.isMod);
+      else {
+        const preferred=regularViewers.filter(x=>x.preferred.includes(activityMode));
+        if(preferred.length && chance(.73)) pool=preferred;
+      }
+      return rnd(pool);
+    }
+    return {name:username(),color:rnd(colors),personality:rnd(['chill','hype','troll','questioner']),preferred:[],tenureMonths:0,isMod:false,isVip:false,subbed:chance(.14),prime:chance(.18),typing:rnd(['normal','normal','lower','caps','messy']),country:rnd(['US','US','US','CA','UK','BR','MX']),donorStyle:rnd(['random','question','joke'])};
+  }
+
+  function allEmotes(){return emotes.concat(creatorProfile.emotes||[]);}
+
+  function applyTypingStyle(msg,ch){
+    if(!ch) return msg;
+    let s=String(msg);
+    if(ch.typing==='lower') s=s.toLowerCase();
+    else if(ch.typing==='caps' && chance(.55)) s=s.toUpperCase();
+    else if(ch.typing==='punct' && chance(.55)) s += rnd(['!!!','??','?!?!','...']);
+    else if(ch.typing==='messy' && s.length>18 && chance(.45)){
+      const i=5+Math.floor(Math.random()*(s.length-7));
+      if(/[a-z]/i.test(s[i])) s=s.slice(0,i)+s.slice(i+1);
+    }
+    return s;
+  }
+
+  function internationalMessage(ch){
+    const map={MX:'es',ES:'es',BR:'pt',FR:'fr',DE:'de'};
+    const lang=map[ch?.country];
+    return lang ? rnd(internationalLines[lang]) : null;
+  }
+
+  function memoryMessage(){
+    const available=insideJokes.length?insideJokes:streamMemories;
+    if(!available.length) return null;
+    const m=rnd(available);
+    const txt=typeof m==='string'?m:m.text;
+    return rnd([
+      `not this again 😭 ${txt}`,
+      `chat remembers ${txt}`,
+      `we are NEVER letting you forget ${txt}`,
+      `this is giving ${txt} all over again`,
+      `somebody pull up the clip of ${txt}`,
+      `the ${txt} lore continues`,
+      `day ones remember ${txt}`,
+      `I knew ${txt} would come back eventually`
+    ]);
+  }
+
+  function rememberStatement(text,forceJoke=false){
+    const clean=String(text||'').trim();
+    if(!clean) return;
+    if(!streamMemories.some(m=>m.text===clean)) streamMemories.unshift({text:clean,ts:Date.now(),hits:0});
+    streamMemories=streamMemories.slice(0,24);
+    if(forceJoke || chance(.28)){
+      const short=clean.replace(/^i\s+/i,'').slice(0,52);
+      if(short && !insideJokes.includes(short)) insideJokes.unshift(short);
+      insideJokes=insideJokes.slice(0,16);
+    }
+    saveSessionMemory();renderMemoryChips();
+  }
+
+  function saveSessionMemory(){
+    try{localStorage.setItem('twitchSimMemoryV5',JSON.stringify({streamMemories,insideJokes}));}catch(e){}
+  }
+  function loadSessionMemory(){
+    try{
+      const d=JSON.parse(localStorage.getItem('twitchSimMemoryV5')||'{}');
+      if(Array.isArray(d.streamMemories)) streamMemories=d.streamMemories.slice(0,24);
+      if(Array.isArray(d.insideJokes)) insideJokes=d.insideJokes.slice(0,16);
+    }catch(e){}
+  }
+  function renderMemoryChips(){
+    if(!memoryChipsEl) return;
+    const vals=[...insideJokes.map(x=>'😂 '+x),...streamMemories.slice(0,8).map(x=>'🧠 '+x.text)].slice(0,14);
+    memoryChipsEl.innerHTML=vals.length?vals.map(x=>`<span class="memory-chip" title="${escapeHtml(x)}">${escapeHtml(x)}</span>`).join(''):'<span class="memory-chip">Nothing remembered yet</span>';
+  }
+
+  function personaMessage(ch){
+    if(activityDetail && chance(.50)) return persistentTopicMessage();
+    const intl=chance(.08)?internationalMessage(ch):null;
+    if(intl) return intl;
+    if(ch?.personality==='roaster' && chance(.38)) return rnd(extraRoasts);
+    if(ch?.personality==='wholesome' && chance(.38)) return rnd(wholesome);
+    if(ch?.personality==='sportsnerd' && activityMode==='sports' && chance(.55)) return persistentTopicMessage();
+    if(ch?.personality==='questioner' && chance(.40)) return rnd(modeDonationQuestions[activityMode]||questions);
+    if(ch?.personality==='emote' && chance(.48)) return Array.from({length:1+Math.floor(Math.random()*4)},()=>rnd(allEmotes())).join(' ');
+    if(ch?.personality==='lorekeeper' && chance(.45)){const m=memoryMessage();if(m)return m;}
+    if(ch?.personality==='contrarian' && chance(.32)) return rnd(debate);
+    if(ch?.personality==='foodcritic' && activityMode==='food' && chance(.5)) return rnd(foodModeChat);
+    if(ch?.personality==='hype' && chance(.25)) return rnd(eventPools.clutch);
+    return pickBaseMessage();
+  }
+
+  function topicReply(target){
+    const u='@'+target.user;
+    const m=target.message.toLowerCase();
+    if(m.includes('strike')||m.includes('ump')) return rnd([`${u} THANK YOU that was not a strike`,`${u} nah the zone is fine`,`${u} ump has been inconsistent all game`,`${u} you are watching a different strike zone 😭`]);
+    if(m.includes('cubs')||contextProfile.sport==='baseball') return rnd([`${u} facts`,`${u} bullpen still scares me`,`${u} I need one more run before I relax`,`${u} you are jinxing it`,`${u} baseball chat has zero chill`]);
+    if(m.includes(' w ')||m.startsWith('w ')||m==='w') return rnd([`${u} W`,`${u} facts`,`${u} finally somebody said it`]);
+    if(m.includes(' l ')||m.startsWith('l ')||m.includes('washed')) return rnd([`${u} nah you're trolling`,`${u} relax 😭`,`${u} hater spotted`,`${u} unfortunately you cooked`]);
+    return rnd([`${u} facts`,`${u} no shot`,`${u} I was thinking the same thing`,`${u} respectfully absolutely not`,`${u} 😭😭`,`${u} chat is never agreeing on this`,`${u} you might be onto something`]);
+  }
+
+  function maybeScheduleConversation(entry){
+    if(!entry || paused || chance(.94)) return;
+    const candidates=recentChatLog.slice(-12).filter(x=>x.user!==entry.user && x.user!=='STREAMER');
+    if(!candidates.length) return;
+    const target=chance(.6)?entry:rnd(candidates);
+    const delay=450+Math.random()*3000;
+    setTimeout(()=>{
+      if(paused)return;
+      const ch=pickChatter({regular:true});
+      addChat(topicReply(target),{chatter:ch,noReply:true,kind:'reply'});
+      if(chance(.16)) setTimeout(()=>!paused&&addChat(`@${ch.name} ${rnd(['LMAO','nahhh','you got it','I disagree 😭','fair'])}`,{noReply:true,kind:'reply'}),500+Math.random()*1700);
+    },delay);
+  }
+
+  function waveVariant(phrase){
+    return rnd([phrase,phrase.toUpperCase(),phrase+' '+rnd(allEmotes()),'W '+phrase,phrase+'????',phrase+' 😭',phrase+' 💀']);
+  }
+  function startSpamWave(phrase,intensity=1){
+    viralPhrase=String(phrase||rnd(allEmotes())).slice(0,55);
+    viralUntil=Date.now()+12000+Math.random()*30000;
+    momentum=Math.min(1.7,momentum+.45*intensity);
+    const n=Math.floor(12+20*intensity);
+    for(let i=0;i<n;i++) setTimeout(()=>!paused&&addChat(waveVariant(viralPhrase),{noReply:true,kind:'wave'}),i*(40+Math.random()*90));
+  }
+
+  function playTone(kind='message'){
+    if(!soundEnabled) return;
+    try{
+      audioCtx=audioCtx||new (window.AudioContext||window.webkitAudioContext)();
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      const freq=kind==='gift'?720:kind==='donation'?560:kind==='sub'?440:320;
+      o.frequency.value=freq;g.gain.value=.035;o.connect(g);g.connect(audioCtx.destination);o.start();g.gain.exponentialRampToValueAtTime(.001,audioCtx.currentTime+.14);o.stop(audioCtx.currentTime+.15);
+    }catch(e){}
+  }
+
+  function advanceHype(points){
+    hype.lastAction=Date.now();hype.points+=points;
+    if(hype.points>=18) hype.active=true;
+    while(hype.points>=100 && hype.level<5){hype.points-=100;hype.level++;addSystem(`HYPE TRAIN reached Level ${hype.level}!`);startSpamWave(`LEVEL ${hype.level} HYPE TRAIN`,1.2);}
+    updateHypeUI();
+  }
+  function updateHypeUI(){
+    if(hype.active && Date.now()-hype.lastAction<65000){
+      hypeTrainEl.classList.add('show');
+      hypeLabelEl.textContent=`HYPE TRAIN • LEVEL ${hype.level}`;
+      hypePctEl.textContent=`${Math.min(100,Math.round(hype.points))}%`;
+      hypeFillEl.style.width=`${Math.min(100,hype.points)}%`;
+    }else{
+      if(hype.active && Date.now()-hype.lastAction>=65000){hype.active=false;hype.points=0;hype.level=1;}
+      hypeTrainEl.classList.remove('show');
+    }
+  }
+
+  function inferKind(msg){
+    const s=String(msg||'');
+    const names=[creatorProfile.name,...(creatorProfile.nicknames||[])].filter(Boolean).map(x=>x.toLowerCase());
+    if(s.includes('?')) return 'question';
+    if(names.some(n=>s.toLowerCase().includes(n))) return 'mention';
+    return 'chat';
+  }
+  function applyChatFilter(){
+    currentFilter=chatFilterEl?.value||'all';
+    [...feed.children].forEach(el=>{
+      const kind=el.dataset.kind||'chat';
+      let show=true;
+      if(currentFilter==='questions') show=kind==='question';
+      else if(currentFilter==='money') show=['donation','sub'].includes(kind);
+      else if(currentFilter==='mentions') show=kind==='mention';
+      el.style.display=show?'':'none';
+    });
+  }
+
+  function pinMessage(text,duration=22000){
+    pinnedTextEl.textContent=text;pinnedBarEl.classList.add('show');
+    clearTimeout(pinMessage._t);pinMessage._t=setTimeout(()=>pinnedBarEl.classList.remove('show'),duration);
+  }
+
+  function maybeModAction(){
+    if(Date.now()-lastModAction<18000 || !chance(.025)) return;
+    lastModAction=Date.now();
+    const mod=pickChatter({mod:true});
+    const action=Math.random();
+    if(action<.22){
+      const victim=pickChatter();addSystem(`${mod.name} timed out ${victim.name} for 10 minutes.`);
+    }else if(action<.40){
+      const msgs=[...feed.querySelectorAll('.msg')].slice(-20);if(msgs.length){const el=rnd(msgs);el.innerHTML='<span class="deleted-msg">&lt;message deleted by moderator&gt;</span>';el.dataset.kind='chat';}
+    }else if(action<.55){
+      emoteOnlyUntil=Date.now()+9000;addSystem(`${mod.name} enabled emote-only mode for 9 seconds.`);startSpamWave(rnd(allEmotes()),.7);
+    }else if(action<.66){
+      followerOnlyUntil=Date.now()+14000;addSystem(`${mod.name} enabled follower-only mode for 14 seconds.`);
+    }else if(action<.78){
+      addChat(rnd(['chat chill with the spam 😭','no spoilers or you are getting timed out','keep it civil chat','stop copy pasting the same thing','W chat now behave']),{chatter:mod,noReply:true,kind:'mention'});
+    }else if(action<.90){
+      pinMessage(activityDetail?`Stay on topic: ${activityDetail}`:'W stream • be normal chat');addSystem(`${mod.name} pinned a message.`);
+    }else startPoll('poll');
+  }
+
+  function maybeFollowerMilestone(){
+    streamFollowers += Math.floor(25+Math.random()*160*(currentViewers/420000));
+    followStatEl.textContent='+'+streamFollowers.toLocaleString();
+    if(streamFollowers-lastMilestone>=5000){lastMilestone=streamFollowers;addSystem(`🎉 ${((Math.floor(streamFollowers/5000)*5000)).toLocaleString()} new followers this stream!`);startSpamWave('W NEW FOLLOWERS',.55);}
+  }
+
+  function pollPrompt(kind){
+    const team=contextProfile.entities[0]||topicName();
+    if(activityMode==='sports') return kind==='prediction'?`Will ${team} score next?`:`Who wins / takes control from here?`;
+    if(activityMode==='food') return `W or L food take?`;
+    if(activityMode==='tierlist') return `Is the latest ranking correct?`;
+    if(activityMode==='gaming') return kind==='prediction'?'Win the next game?':'Was that play a W or L?';
+    return activityDetail?`Chat verdict on ${activityDetail}?`:'W take or L take?';
+  }
+
+  function startPoll(kind='poll'){
+    if(activePoll) return;
+    const q=pollPrompt(kind), yes=45+Math.floor(Math.random()*20), no=100-yes;
+    activePoll={kind,q,a:yes,b:no,ticks:0};
+    const d=document.createElement('div');d.className='poll-card';d.dataset.kind='poll';d.id='activePollCard';
+    d.innerHTML=`<div class="poll-q">${kind==='prediction'?'🔮 PREDICTION':'📊 POLL'}: ${escapeHtml(q)}</div><div class="poll-option"><span>${kind==='prediction'?'YES':'W / OPTION A'}</span><b id="pollA">${yes}%</b><div class="poll-bar"><span id="pollABar" style="width:${yes}%"></span></div></div><div class="poll-option"><span>${kind==='prediction'?'NO':'L / OPTION B'}</span><b id="pollB">${no}%</b><div class="poll-bar"><span id="pollBBar" style="width:${no}%"></span></div></div>`;
+    feed.appendChild(d);trimFeed();autoscroll();applyChatFilter();
+    addChat(rnd(['VOTE CHAT','poll is already 50/50 😭','I know chat is rigging this','easy vote','mods finally made the poll']),{noReply:true});
+    const timer=setInterval(()=>{
+      if(!activePoll){clearInterval(timer);return;}
+      activePoll.ticks++;
+      activePoll.a=clamp(activePoll.a+(Math.random()-.5)*5,12,88);activePoll.b=100-activePoll.a;
+      const a=Math.round(activePoll.a),b=100-a;
+      const ae=$('#pollA'),be=$('#pollB'),ab=$('#pollABar'),bb=$('#pollBBar');if(ae){ae.textContent=a+'%';be.textContent=b+'%';ab.style.width=a+'%';bb.style.width=b+'%';}
+      if(activePoll.ticks>=10){clearInterval(timer);const win=a>=b?'A / YES':'B / NO';addSystem(`${kind==='prediction'?'Prediction':'Poll'} closed — ${win} won ${Math.max(a,b)}%.`);activePoll=null;}
+    },1000);
+  }
+
+  function quickActionSets(){
+    if(activityMode==='sports'){
+      if(contextProfile.sport==='baseball') return [['Home Run','clutch'],['Strikeout','win'],['Bad Ump Call','rage'],['Run Scored','win'],['Bases Loaded','closecall'],['Pitching Change','take'],['Game Tied','comeback'],['Game Won','win']];
+      return [['Big Score','clutch'],['Bad Ref Call','rage'],['Huge Play','crazyshot'],['Turnover','death'],['Comeback','comeback'],['Game Tied','closecall'],['Timeout','take'],['Game Won','win']];
+    }
+    if(activityMode==='gaming') return [['Clutch','clutch'],['Died','death'],['Bad Play','skill'],['Win','win'],['Choke','choke'],['Teammate Sold','teammatesold'],['Rare Pull','rareitem'],['Game Crash','crash']];
+    if(activityMode==='food') return [['Food Is Fire','agree'],['Food Is Awful','disagree'],['Spicy Reaction','rage'],['Food Take','foodtake'],['Spilled Something','funny'],['Rate It 10/10','agree'],['Rate It 0/10','disagree'],['Try Weird Combo','sus']];
+    if(activityMode==='music') return [['Song Is Fire','music'],['Song Is Mid','disagree'],['Beat Drop','clutch'],['Wild Lyric','sus'],['Singing','singing'],['Replay Song','agree'],['Skip Song','disagree'],['New Favorite','wholesome']];
+    if(activityMode==='watching') return [['Funny Clip','funny'],['Shocking Clip','jumpscare'],['Cringe Moment','embarrassing'],['Pause / Replay','caught'],['W Take','agree'],['L Take','disagree'],['Wild Statement','sus'],['Video Ends','speech']];
+    return [['Funny Moment','funny'],['Hot Take','take'],['Chat Caught Me','caught'],['Wild Statement','sus'],['W Speech','speech'],['Big Announcement','announcement'],['Wholesome','wholesome'],['Embarrassing','embarrassing']];
+  }
+
+  function specificQuickReaction(label){
+    const team=contextProfile.entities[0]||'the team';
+    if(activityMode==='sports'&&contextProfile.sport==='baseball'){
+      const map={
+        'Home Run':[`HOMERUNNNNN`,`THAT BALL IS GONE`,`${team} BOMB LETS GOOOO`,`NO DOUBTER`,`I STOOD UP BEFORE IT LANDED`,`W BAT FLIP`,`THAT SOUND OFF THE BAT 😭`],
+        'Strikeout':['SIT HIM DOWN','NASTY PITCH','HE GOT FROZEN','K K K','that pitch was FILTHY','pitcher absolutely cooked him'],
+        'Bad Ump Call':['UMP WHAT ARE WE DOING','THAT IS NOT A STRIKE','robo umps immediately','zone is a suggestion tonight','ump became the main character'],
+        'Run Scored':[`${team} SCORE LETS GO`,'INSURANCE RUNNN','KEEP ADDING ON','W RUN','do not stop at one'],
+        'Bases Loaded':['BASES LOADED LOCK IN','one swing changes everything','PLEASE DO NOT STRAND THEM','grand slam manifesting','chat is standing up'],
+        'Pitching Change':['BULLPEN TIME 😭','do we trust this reliever','PLEASE THROW STRIKES','new pitcher new anxiety','chat scouting report NOW'],
+        'Game Tied':['TIE GAMEEEE','WE ARE BACK','brand new ballgame','my heart cannot do extra innings','momentum just flipped'],
+        'Game Won':[`${team} WINNNNN`,'FLY THE W','GG CUBS','W BASEBALL','NEVER IN DOUBT','okay I doubted a little']
+      };
+      return map[label]||null;
+    }
+    return null;
+  }
+
+  function resolvePrediction(outcome=true){
+    if(!activePoll || activePoll.kind!=='prediction') return;
+    addSystem(`🔮 Prediction resolved: ${outcome?'YES':'NO'} wins.`);activePoll=null;
+  }
+
+  function renderQuickActions(){    if(!quickActionsEl)return;
+    quickActionsEl.innerHTML=quickActionSets().map(([label,type])=>`<button class="quick-action" data-quick-event="${type}" data-quick-label="${escapeHtml(label)}">${escapeHtml(label)}</button>`).join('');
+    quickActionsEl.querySelectorAll('[data-quick-event]').forEach(b=>b.addEventListener('click',()=>{
+      const label=b.dataset.quickLabel,type=b.dataset.quickEvent;
+      const team=contextProfile.entities[0]||'the team';
+      const statement=activityMode==='sports'&&contextProfile.sport==='baseball'?`${label} during ${activityDetail||'the baseball game'}${team?' involving '+team:''}`:`${label} while ${activityDetail||activityLabels[activityMode]}`;
+      rememberStatement(statement,['funny','caught','embarrassing','sus'].includes(type));
+      const special=specificQuickReaction(label);
+      setEvent(type);
+      if(special){for(let i=0;i<24;i++)setTimeout(()=>!paused&&addChat(rnd(special),{noReply:i<16}),i*(30+Math.random()*50));setTimeout(()=>startSpamWave(rnd(special),.95),120);}
+    }));
+  }
+
+  function parseLiveFactsMessage(){
+    if(!streamFacts)return null;
+    const s=streamFacts;
+    const score=s.match(/([A-Za-z ]{2,20})\s+(\d+)\s*[-–:]\s*([A-Za-z ]{2,20})\s+(\d+)/);
+    if(score){
+      const a=score[1].trim(),as=+score[2],b=score[3].trim(),bs=+score[4],diff=Math.abs(as-bs);
+      return rnd([
+        `${as}-${bs} is way too stressful right now`,
+        `${a} ${as}, ${b} ${bs} — nobody relax yet`,
+        diff<=1?'one-run game and chat is losing it':`${diff} run gap but this still does not feel safe`,
+        `current situation: ${s}`,
+        `chat scoreboard check: ${a} ${as} - ${b} ${bs}`,
+        `I know everyone is staring at that ${as}-${bs} score`
+      ]);
+    }
+    return rnd([`current situation is ${s}`,`chat keep in mind: ${s}`,`${s} and somehow everyone is still arguing`,`with ${s} I am not relaxed at all`]);
+  }
+
+  function saveCreatorProfile(){
+    creatorProfile={
+      name:$('#creatorName').value.trim(),
+      nicknames:$('#creatorNicknames').value.split(',').map(x=>x.trim()).filter(Boolean).slice(0,8),
+      teams:$('#creatorTeams').value.split(',').map(x=>x.trim()).filter(Boolean).slice(0,8),
+      emotes:$('#creatorEmotes').value.split(',').map(x=>x.trim()).filter(Boolean).slice(0,16)
+    };
+    try{localStorage.setItem('twitchSimProfileV5',JSON.stringify(creatorProfile));}catch(e){}
+    updateCreatorUI();addSystem('Streamer profile saved. Chat will use your name, lore, teams and custom emotes.');
+  }
+  function loadCreatorProfile(){
+    try{const d=JSON.parse(localStorage.getItem('twitchSimProfileV5')||'{}');creatorProfile={...creatorProfile,...d};}catch(e){}
+    $('#creatorName').value=creatorProfile.name||'';$('#creatorNicknames').value=(creatorProfile.nicknames||[]).join(', ');$('#creatorTeams').value=(creatorProfile.teams||[]).join(', ');$('#creatorEmotes').value=(creatorProfile.emotes||[]).join(', ');updateCreatorUI();
+  }
+  function updateCreatorUI(){
+    const n=creatorProfile.name||'YOUR CHANNEL';channelTitleEl.textContent=`${n.toUpperCase()} • #1 STREAMER`;
+  }
+
   const activityLabels = {
     chatting:'Just Chatting',
     gaming:'Gaming',
@@ -1939,12 +2436,16 @@
   function persistentTopicMessage(){
     if(!activityDetail) return rnd(activityPool());
 
+    if(streamFacts && chance(.22)){const f=parseLiveFactsMessage();if(f)return f;}
+    if((streamMemories.length||insideJokes.length) && chance(.055)){const m=memoryMessage();if(m)return m;}
+
     if(contextProfile.category === 'sports') return sportsContextMessage();
 
     const topic = activityDetail;
     const name = topicName();
     const key = contextProfile.keywords.length ? rnd(contextProfile.keywords) : name;
     const base = activityPool();
+    const loreTeam=(creatorProfile.teams||[]).length?rnd(creatorProfile.teams):'';
     const generic = [
       `chat is still locked into ${topic}`,
       `okay back to ${topic} because we got distracted`,
@@ -1965,30 +2466,31 @@
       `chat keeps circling back to ${name}`,
       `I know somebody made a clip titled "${name} debate" already`,
       `the ${key} takes in chat are getting dangerous`,
-      `we are not leaving ${topic} until there is a conclusion apparently`
-    ];
+      `we are not leaving ${topic} until there is a conclusion apparently`,
+      loreTeam?`somehow ${loreTeam} got brought into this conversation again`:null,
+      creatorProfile.name?`${creatorProfile.name} you cannot just say that and move on`:null
+    ].filter(Boolean);
 
     const keywordSpecific = detailKeywordPool(topic);
     if(keywordSpecific.length && chance(.48)) return rnd(keywordSpecific);
-    if(chance(.42)) return rnd(generic);
+    if(chance(.46)) return rnd(generic);
     return rnd(base);
   }
 
   function savePersistentContext(){
     try{
-      localStorage.setItem('twitchSimContextV4', JSON.stringify({
-        activityMode, activityDetail
-      }));
+      localStorage.setItem('twitchSimContextV5', JSON.stringify({activityMode,activityDetail,streamFacts}));
     }catch(e){}
   }
 
   function loadPersistentContext(){
     try{
-      const raw = localStorage.getItem('twitchSimContextV4');
+      const raw = localStorage.getItem('twitchSimContextV5') || localStorage.getItem('twitchSimContextV4');
       if(!raw) return;
-      const saved = JSON.parse(raw);
-      if(saved && saved.activityMode) activityMode = saved.activityMode;
-      if(saved && typeof saved.activityDetail === 'string') activityDetail = saved.activityDetail;
+      const saved=JSON.parse(raw);
+      if(saved?.activityMode) activityMode=saved.activityMode;
+      if(typeof saved?.activityDetail==='string') activityDetail=saved.activityDetail;
+      if(typeof saved?.streamFacts==='string') streamFacts=saved.streamFacts;
     }catch(e){}
   }
 
@@ -1998,10 +2500,12 @@
     const display = activityDetail ? `${label} — ${activityDetail}` : label;
     activityCurrentEl.textContent = display;
     chatContextLabel.textContent = activityDetail || label;
-    chatContextLabel.title = display;
+    chatContextLabel.title = display+(streamFacts?` | ${streamFacts}`:'');
     streamStatusEl.textContent = activityDetail
-      ? `${label}: ${activityDetail}`
+      ? `${label}: ${activityDetail}${streamFacts?` • ${streamFacts}`:''}`
       : `${label} • worldwide live audience simulator`;
+    if(liveFactsInput) liveFactsInput.value=streamFacts||'';
+    renderQuickActions();
   }
 
   function activityPool(){
@@ -2053,34 +2557,15 @@
   }
 
   function setActivity(mode, useDetail=true){
-    activityMode = mode || 'chatting';
-    if(useDetail) activityDetail = activityDetailInput.value.trim();
-
-    fullscreenChatBtn.addEventListener('click', () => {
-    setChatOnly(!document.body.classList.contains('chat-only'));
-  });
-
-  document.addEventListener('keydown', e => {
-    if(e.key === 'Escape' && document.body.classList.contains('chat-only')) setChatOnly(false);
-  });
-
-  document.querySelectorAll('.activity-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.activity === activityMode);
-    });
-
-    updateContextLabels();
-    savePersistentContext();
-
-    const label = activityLabels[activityMode] || 'Other';
-    addSystem(`Persistent stream context set to ${label}${activityDetail ? ` — ${activityDetail}` : ''}. Chat will stay on this topic until you change it.`);
-
-    // New context gets an immediate burst, then remains active indefinitely.
-    for(let i=0;i<15;i++){
-      setTimeout(() => {
-        if(paused) return;
-        addChat(activityDetail ? persistentTopicMessage() : rnd(activityPool()));
-      }, i*(36+Math.random()*48));
-    }
+    activityMode=mode||'chatting';
+    if(useDetail) activityDetail=activityDetailInput.value.trim();
+    document.querySelectorAll('.activity-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.activity===activityMode));
+    updateContextLabels();savePersistentContext();
+    const modeSpike={sports:.035,irl:.045,watching:.025,gaming:.015,announcement:.06}[activityMode]||0;
+    if(modeSpike){currentViewers+=Number(viewerBaseSlider.value)*modeSpike;momentum=Math.min(1.5,momentum+.18);updateViewerUI();}
+    const label=activityLabels[activityMode]||'Other';
+    addSystem(`Persistent stream context set to ${label}${activityDetail?` — ${activityDetail}`:''}. Chat will stay on this topic until you change it.`);
+    for(let i=0;i<15;i++) setTimeout(()=>{if(!paused)addChat(activityDetail?persistentTopicMessage():rnd(activityPool()),{noReply:i<8});},i*(36+Math.random()*48));
   }
 
   function generatedSentence(){
@@ -2138,13 +2623,20 @@
   }
 
   function pickBaseMessage(){
+    if(Date.now()<emoteOnlyUntil) return Array.from({length:1+Math.floor(Math.random()*4)},()=>rnd(allEmotes())).join(' ');
+
     if(eventMode && Date.now() < eventExpires && chance(.72)){
       return rnd(eventPools[eventMode] || general);
     }
-    if(eventMode && Date.now() >= eventExpires){
-      eventMode = null;
-      eventStrength = 0;
-    }
+    if(eventMode && Date.now() >= eventExpires){eventMode=null;eventStrength=0;}
+
+    if(viralPhrase && Date.now()<viralUntil && chance(Math.min(.26,.08+momentum*.09))) return waveVariant(viralPhrase);
+    if(viralPhrase && Date.now()>=viralUntil) viralPhrase='';
+
+    const offRate=Number(irrelevantRateSlider?.value||8)/100;
+    if(chance(offRate)) return chance(.42)?rnd(attentionSeekers):chance(.55)?rnd(irrelevantChat):rnd(wildStatements);
+    if(streamFacts && chance(.08)){const fm=parseLiveFactsMessage();if(fm)return fm;}
+    if((insideJokes.length||streamMemories.length) && chance(.035)){const mm=memoryMessage();if(mm)return mm;}
 
     const mood = moodSelect.value;
     const roast = Number(roastSlider.value)/100;
@@ -2152,43 +2644,31 @@
     let pools = [];
 
     if(activityMode === 'gaming'){
-      if(mood==='hype') pools = [gameplay, gameplay, eventPools.clutch, general, emotes, memeLines];
-      else if(mood==='chill') pools = [gameplay, general, questions, wholesome];
-      else if(mood==='chaos') pools = [gameplay, gameplay, roasts, extraRoasts, memeLines, wildStatements, emotes];
-      else if(mood==='question') pools = [questions, questions, gameplay, general];
-      else pools = [gameplay, gameplay, general, questions, memeLines, debate];
-    } else {
-      if(mood==='hype') pools = [modePool, modePool, general, memeLines, emotes, wildStatements];
-      else if(mood==='chill') pools = [modePool, modePool, wholesome, questions, general];
-      else if(mood==='chaos') pools = [modePool, modePool, wildStatements, extraRoasts, roasts, memeLines, emotes, debate];
-      else if(mood==='question') pools = [modePool, questions, questions, modePool, wholesome];
-      else pools = [modePool, modePool, general, questions, wholesome, wildStatements, memeLines, debate];
+      if(mood==='hype') pools=[gameplay,gameplay,eventPools.clutch,general,allEmotes(),memeLines];
+      else if(mood==='chill') pools=[gameplay,general,questions,wholesome];
+      else if(mood==='chaos') pools=[gameplay,gameplay,roasts,extraRoasts,memeLines,wildStatements,allEmotes()];
+      else if(mood==='question') pools=[questions,questions,gameplay,general];
+      else pools=[gameplay,gameplay,general,questions,memeLines,debate];
+    }else{
+      if(mood==='hype') pools=[modePool,modePool,general,memeLines,allEmotes(),wildStatements];
+      else if(mood==='chill') pools=[modePool,modePool,wholesome,questions,general];
+      else if(mood==='chaos') pools=[modePool,modePool,wildStatements,extraRoasts,roasts,memeLines,allEmotes(),debate];
+      else if(mood==='question') pools=[modePool,questions,questions,modePool,wholesome];
+      else pools=[modePool,modePool,general,questions,wholesome,wildStatements,memeLines,debate];
     }
+    if(chance(roast*.42)) pools.push(roasts,extraRoasts,extraRoasts);
 
-    if(chance(roast*.42)) pools.push(roasts, extraRoasts, extraRoasts);
+    const roll=Math.random();let msg;
+    if(activityDetail && roll<.70) msg=persistentTopicMessage();
+    else if(activityDetail && roll<.78){const q=modeDonationQuestions[activityMode]||modeDonationQuestions.other;msg=rnd(q);}
+    else if(roll<.86) msg=rnd(modePool);
+    else if(activityMode==='gaming'&&roll<.91) msg=dynamicGameplay();
+    else {const pool=rnd(pools);msg=Array.isArray(pool)?rnd(pool):String(pool);}
 
-    const roll = Math.random();
-    let msg;
-
-    // With a specific activity set, ~70% of ordinary messages stay directly themed
-    // around that persistent topic. The rest provide natural chat noise.
-    if(activityDetail && roll < .70){
-      msg = persistentTopicMessage();
-    } else if(activityDetail && roll < .78){
-      const q = modeDonationQuestions[activityMode] || modeDonationQuestions.other;
-      msg = rnd(q);
-    } else if(roll < .86){
-      msg = rnd(modePool);
-    } else if(activityMode === 'gaming' && roll < .91){
-      msg = dynamicGameplay();
-    } else {
-      const p = rnd(pools);
-      msg = Array.isArray(p) ? rnd(p) : String(p);
-    }
-
-    if(chance(.09)) msg = `${rnd(openers)} ${msg}`;
-    if(chance(.14) && !/[😭💀😂🔥👀🙏🫡🤯]$/.test(msg)) msg += ' ' + rnd(emotes);
-    if(chance(.05)) msg = msg.toUpperCase();
+    if(creatorProfile.nicknames?.length && chance(.035)) msg=`${rnd(creatorProfile.nicknames)} ${msg}`;
+    if(chance(.09)) msg=`${rnd(openers)} ${msg}`;
+    if(chance(.14) && !/[😭💀😂🔥👀🙏🫡🤯]$/.test(msg)) msg+=' '+rnd(allEmotes());
+    if(chance(.05)) msg=msg.toUpperCase();
     return msg;
   }
 
@@ -2204,20 +2684,24 @@
   }
 
   function addChat(message=null, opts={}){
-    const user = opts.user || username();
-    const color = opts.color || rnd(colors);
-    const b = opts.badges || badges();
-    const msg = message || uniqueMessage();
-    const div = document.createElement('div');
-    div.className = 'msg';
-    div.innerHTML =
-      `<span class="time">${nowTime()}</span>`+
-      b.map(x=>`<span class="badge ${x[0]}">${x[1]}</span>`).join('')+
-      `<span class="username" style="color:${color}">${escapeHtml(user)}:</span>`+
-      `<span>${escapeHtml(msg)}</span>`;
+    const chatter=opts.chatter || (opts.user?null:pickChatter());
+    const user=opts.user || chatter?.name || username();
+    const color=opts.color || chatter?.color || rnd(colors);
+    const b=opts.badges || chatterBadges(chatter);
+    let msg=message || personaMessage(chatter);
+    if(!message){
+      for(let i=0;i<8&&recentMessages.includes(msg);i++) msg=personaMessage(chatter);
+      recentMessages.push(msg);if(recentMessages.length>MAX_RECENT)recentMessages.shift();
+    }
+    if(!opts.raw) msg=applyTypingStyle(msg,chatter);
+    const kind=opts.kind || inferKind(msg);
+    const div=document.createElement('div');div.className='msg';div.dataset.kind=kind;
+    div.innerHTML=`<span class="time">${nowTime()}</span>`+b.map(x=>`<span class="badge ${x[0]}">${x[1]}</span>`).join('')+`<span class="username" style="color:${color}">${escapeHtml(user)}:</span><span>${escapeHtml(msg)}</span>`;
     feed.appendChild(div);
-    trimFeed();
-    autoscroll();
+    const entry={user,message:msg,chatter,ts:Date.now()};recentChatLog.push(entry);recentChatLog=recentChatLog.slice(-80);
+    trimFeed();applyChatFilter();autoscroll();
+    if(!opts.noReply && user!==(creatorProfile.name||'STREAMER')) maybeScheduleConversation(entry);
+    return entry;
   }
 
   function donationAmount(){
@@ -2229,68 +2713,84 @@
     return (1000 + Math.random()*4000).toFixed(2);
   }
 
-  function donationMessage(){
-    const modeQuestions = modeDonationQuestions[activityMode] || modeDonationQuestions.other;
-    const modeComments = modeDonationComments[activityMode] || modeDonationComments.other;
-    const r = Math.random();
-    let core;
-
-    if(activityDetail && r < .52){
-      const topic = activityDetail;
-      const name = topicName();
-      const sport = contextProfile.sport;
-      const themed = [
+  function donationMessage(chatter=null,chain=null){
+    const modeQuestions=modeDonationQuestions[activityMode]||modeDonationQuestions.other;
+    const modeComments=modeDonationComments[activityMode]||modeDonationComments.other;
+    if(chain){
+      return rnd([
+        `I disagree with ${chain.user}. ${activityDetail?`On ${activityDetail}, `:''}chat is cooking them.`,
+        `${chain.user} donated just to be wrong 😭`,
+        `Counter-donation: ${chain.user} has a point but the conclusion is wild.`,
+        `I am donating more than ${chain.user} solely so my opinion appears underneath theirs.`,
+        `Both chat and ${chain.user} are wrong. That is all.`,
+        `${chain.user} started a donation debate and now I have to join.`
+      ]);
+    }
+    const style=chatter?.donorStyle||'random';
+    const r=Math.random();let core;
+    if(activityDetail && r<.52){
+      const topic=activityDetail,name=topicName(),sport=contextProfile.sport;
+      const themed=[
         `I had to donate because chat is moving too fast. About ${topic}: what is your prediction?`,
         `We have been talking about ${name} all stream and I need your final take.`,
         `My group chat is watching too and everybody has a different opinion on ${topic}.`,
         `Quick question about ${name}: what do you think happens next?`,
-        `The ${topic} watchalong/discussion has been hilarious. W stream.`,
+        `The ${topic} segment has been hilarious. W stream.`,
         `I joined specifically for ${topic} and chat has already lost its mind.`,
         `Can you settle one thing about ${name} before chat starts another war?`,
         `I normally lurk but the ${name} discussion finally made me donate.`,
         `This whole ${topic} segment feels like watching with 400,000 friends.`,
-        `Chat is moving too fast to ask normally: what is your honest take on ${name}?`
+        streamFacts?`With ${streamFacts}, what are you most worried about right now?`:`Chat is moving too fast to ask normally: what is your honest take on ${name}?`
       ];
-      if(sport === 'baseball'){
-        themed.push(
-          `Came for the baseball watchalong. Who do you trust most in a big late-inning spot?`,
-          `What is your prediction for the rest of this game?`,
-          `If this gets to the bullpen close, are you confident or terrified?`,
-          `Who has been the player of the game so far?`,
-          `Be honest: how nervous are you going into the late innings?`
-        );
-      }
-      core = rnd(themed);
-    } else if(r < .68) core = rnd(modeQuestions);
-    else if(r < .82) core = rnd(modeComments);
-    else if(r < .93) core = rnd(donationComments);
-    else core = rnd(wildDonations);
-
-    if(chance(.54)) return `${rnd(donationOpeners)} ${core}`;
+      if(sport==='baseball') themed.push(`Who do you trust most in a big late-inning spot?`,`What is your prediction for the rest of this game?`,`If this gets to the bullpen close, are you confident or terrified?`,`Who has been player of the game so far?`);
+      core=rnd(themed);
+    }else if(style==='question'||r<.68) core=rnd(modeQuestions);
+    else if(style==='wholesome'||r<.80) core=rnd(modeComments);
+    else if(style==='roast') core=rnd(extraRoasts);
+    else if(style==='joke') core=rnd(wildDonations);
+    else if(style==='debate') core=rnd(debate);
+    else if(r<.93) core=rnd(donationComments);
+    else core=rnd(wildDonations);
+    if(chance(.52)) return `${rnd(donationOpeners)} ${core}`;
     return core;
   }
 
-  function addDonation(force=false){
+  function addSubEvent(forceType=null){
+    if(paused)return;
+    const ch=pickChatter({regular:true});
+    let type=forceType||rnd(['tier1','prime','resub','resub','gift']);
+    let title='',body='',points=5,count=1;
+    if(type==='gift'){
+      count=rnd([5,5,10,10,20,25,50,100]);title=`${ch.name} gifted ${count} subs!`;body=rnd(['W GIFTER','enjoy the subs chat','I blame the hype train','worth it']);points=10+count*.9;
+    }else if(type==='resub'){
+      const months=Math.max(2,ch.tenureMonths||2);title=`${ch.name} resubscribed for ${months} months!`;body=rnd(['still here W stream','another month in the chaos','day one energy','worth every month']);points=6;
+    }else if(type==='prime'){
+      title=`${ch.name} subscribed with Prime!`;body=rnd(['W PRIME','free sub used correctly','prime gang']);points=4;
+    }else {title=`${ch.name} subscribed at Tier 1!`;body=rnd(['W stream','finally subbed','been lurking forever']);points=4;}
+    streamSubs+=count;subStatEl.textContent=streamSubs.toLocaleString();
+    const d=document.createElement('div');d.className='sub-event'+(type==='gift'?' gift':'');d.dataset.kind='sub';d.innerHTML=`<div class="sub-title">${escapeHtml(title)}</div>${escapeHtml(body)}`;feed.appendChild(d);trimFeed();applyChatFilter();autoscroll();
+    advanceHype(points);playTone(type==='gift'?'gift':'sub');
+    if(type==='gift'&&count>=20){showAlert(title);startSpamWave(`${count} BOMBBBB`,Math.min(1.6,.8+count/100));}
+    else if(chance(.12)) addChat(rnd(['W SUB','welcome to the chaos','W PRIME','THANK YOU FOR THE SUB']),{noReply:true});
+  }
+
+  function addDonation(force=false,chain=null,allowChain=true){
     if(!force && paused) return;
-    const amount = donationAmount();
-    const user = username();
-    const text = donationMessage();
-    const div = document.createElement('div');
-    div.className = 'donation' + (Number(amount)>=100 ? ' high' : '');
-    div.innerHTML = `<span class="donor">${escapeHtml(user)}</span> donated <span class="amount">$${amount}</span><br>${escapeHtml(text)}`;
-    feed.appendChild(div);
-    trimFeed();
-    autoscroll();
-    if(Number(amount)>=100 || chance(.20)) showAlert(`${user} donated $${amount} — ${text}`);
+    const amount=donationAmount();
+    const ch=pickChatter({donor:true});
+    const user=ch.name;
+    const msg=donationMessage(ch,chain);
+    const d=document.createElement('div');d.className='donation'+(Number(amount)>=100?' high':'');d.dataset.kind='donation';
+    d.innerHTML=`<span class="donor">${escapeHtml(user)}</span> donated <span class="amount">$${amount}</span><br>${escapeHtml(msg)}`;
+    feed.appendChild(d);trimFeed();applyChatFilter();autoscroll();
+    lastDonation={user,amount,msg,ts:Date.now()};advanceHype(Math.min(28,2+Number(amount)/20));playTone('donation');
+    if(Number(amount)>=100||chance(.18)) showAlert(`${user} donated $${amount} — ${msg}`);
+    if(Number(amount)>=250) startSpamWave(rnd(['W DONO','HOLY DONATION',`W ${user}`]),.7);
+    if(allowChain&&chance(.11)) setTimeout(()=>!paused&&addDonation(false,lastDonation,false),1200+Math.random()*4300);
   }
 
   function addSystem(text){
-    const d = document.createElement('div');
-    d.className='system-msg';
-    d.textContent=text;
-    feed.appendChild(d);
-    trimFeed();
-    autoscroll();
+    const d=document.createElement('div');d.className='system-msg';d.dataset.kind='system';d.textContent=text;feed.appendChild(d);trimFeed();applyChatFilter();autoscroll();
   }
 
   function trimFeed(){
@@ -2311,29 +2811,32 @@
   }
 
   function currentDelay(){
-    const v = Number(speedSlider.value);
-    // 1 => ~1800ms, 100 => ~45ms
-    return Math.max(45, 1850 - v*18.05);
+    const v=Number(speedSlider.value);
+    const raw=Math.max(45,1850-v*18.05);
+    const base=Number(viewerBaseSlider.value)||420000;
+    const viewerFactor=clamp(Math.sqrt(currentViewers/base),.72,1.42);
+    const momentumFactor=1+Math.min(.55,momentum*.22);
+    return Math.max(35,raw/(viewerFactor*momentumFactor));
   }
 
   function scheduleNext(){
     clearTimeout(generationTimer);
-    const base = currentDelay();
-    const jitter = base*(.45 + Math.random()*1.15);
-    generationTimer = setTimeout(()=>{
+    const base=currentDelay(),jitter=base*(.45+Math.random()*1.15);
+    generationTimer=setTimeout(()=>{
       if(!paused){
-        const donationChance = (Number(donationSlider.value)/100) * 0.035;
-        if(chance(donationChance)) addDonation();
+        const donationChance=(Number(donationSlider.value)/100)*.032;
+        const subChance=(Number(subRateSlider?.value||42)/100)*.026;
+        const r=Math.random();
+        if(r<donationChance) addDonation();
+        else if(r<donationChance+subChance) addSubEvent();
         else addChat();
-
-        // Huge chats sometimes send mini-bursts
-        if(Number(speedSlider.value)>75 && chance(.16)){
-          const burst = 1 + Math.floor(Math.random()*3);
-          for(let i=0;i<burst;i++) setTimeout(()=>!paused && addChat(), i*30);
+        maybeModAction();
+        if(Number(speedSlider.value)>75&&chance(.15)){
+          const burst=1+Math.floor(Math.random()*3);for(let i=0;i<burst;i++)setTimeout(()=>!paused&&addChat(null,{noReply:chance(.6)}),i*35);
         }
       }
       scheduleNext();
-    }, jitter);
+    },jitter);
   }
 
   function updateViewerUI(){
@@ -2341,19 +2844,21 @@
   }
 
   function viewerTick(){
-    const base = Number(viewerBaseSlider.value);
-    const vol = volatilitySelect.value;
-    const pct = vol==='steady' ? .0018 : vol==='wild' ? .010 : .0043;
-    const pull = (base-currentViewers)*0.045;
-    let delta = (Math.random()-.49)*base*pct + pull;
-
-    if(eventMode && Date.now()<eventExpires){
-      if(['clutch','win','funny','rage'].includes(eventMode)) delta += base*(.001+Math.random()*.003);
-      if(['afk','tech'].includes(eventMode)) delta -= base*(.0005+Math.random()*.002);
+    const base=Number(viewerBaseSlider.value);
+    const vol=volatilitySelect.value;
+    const pct=vol==='steady'?.0018:vol==='wild'?.010:.0043;
+    const modeFactor={chatting:1,gaming:.99,irl:1.06,watching:1.03,music:.98,story:.99,food:1.01,qa:1.0,sports:1.08,tierlist:1.0,shopping:.97,other:.98}[activityMode]||1;
+    const hr=new Date().getHours();
+    const lateFactor=(hr>=2&&hr<6)?.94:(hr>=0&&hr<2)?.975:1;
+    const target=base*modeFactor*lateFactor*(1+Math.min(.14,momentum*.055));
+    const pull=(target-currentViewers)*.045;
+    let delta=(Math.random()-.49)*base*pct+pull;
+    if(eventMode&&Date.now()<eventExpires){
+      if(['clutch','crazyshot','win','funny','rage','announcement','record','raid','viewerspike','collab','celebrity'].includes(eventMode)) delta+=base*(.001+Math.random()*.0035);
+      if(['afk','tech','queue','crash'].includes(eventMode)) delta-=base*(.0007+Math.random()*.0025);
     }
-    currentViewers += delta;
-    currentViewers = clamp(currentViewers, base*.62, base*1.62);
-    updateViewerUI();
+    currentViewers+=delta;currentViewers=clamp(currentViewers,base*.55,base*1.85);momentum*=.94;
+    maybeFollowerMilestone();updateHypeUI();updateViewerUI();
   }
 
   function setEvent(type){
@@ -2423,27 +2928,26 @@
     const mediumEvents = ['win','comeback','choke','rareitem','embarrassing','caught','collab','giveaway'];
     const count = hugeEvents.includes(type) ? 34 : mediumEvents.includes(type) ? 25 : 19;
     for(let i=0;i<count;i++){
-      setTimeout(()=>!paused && addChat(rnd(eventPools[type] || general)), i*(28+Math.random()*55));
+      setTimeout(()=>!paused && addChat(rnd(eventPools[type] || general),{noReply:i<count*.55}), i*(28+Math.random()*55));
     }
+    const waveSource=rnd(eventPools[type]||general);
+    if(['clutch','crazyshot','win','funny','jumpscare','rage','choke','announcement','raid','milestone','bigdonation','record'].includes(type)) startSpamWave(waveSource,['raid','record','clutch'].includes(type)?1.25:.8);
+    if(['funny','embarrassing','caught','sus','rage'].includes(type) && activityDetail) rememberStatement(`${labels[type]||type} during ${activityDetail}`,true);
+    if(type==='raid'){streamFollowers+=2500+Math.floor(Math.random()*6000);addSubEvent('gift');}
+    if(type==='bigdonation') setTimeout(()=>addDonation(true,null,false),250);
+    if(activePoll?.kind==='prediction'){if(['clutch','crazyshot','win','comeback','rareitem'].includes(type))resolvePrediction(true);else if(['death','loss','choke'].includes(type))resolvePrediction(false);}
     if(['clutch','crazyshot','win','funny','jumpscare','announcement','raid','milestone','viewerspike','bigdonation','record'].includes(type))
       currentViewers += Number(viewerBaseSlider.value)*(.025+Math.random()*.045);
     updateViewerUI();
   }
 
   function reactToContext(){
-    const val = $('#contextInput').value.trim();
-    if(!val) return;
-    addSystem(`Context reaction: ${val}`);
-    const count = 24;
-    for(let i=0;i<count;i++){
-      setTimeout(()=>{
-        if(!paused){
-          let m = contextualMessage(val);
-          if(chance(.18)) m += ' ' + rnd(emotes);
-          addChat(m);
-        }
-      }, i*(32+Math.random()*60));
-    }
+    const val=$('#contextInput').value.trim();if(!val)return;
+    rememberStatement(val,/funny|embarrass|spill|fell|wild|caught|mistake|wrong|choke/i.test(val));
+    addSystem(`Chat remembers what you just said/did: ${val}`);
+    const count=28;
+    for(let i=0;i<count;i++) setTimeout(()=>{if(!paused){let m=contextualMessage(val);if(chance(.18))m+=' '+rnd(allEmotes());addChat(m,{noReply:i<count*.6});}},i*(32+Math.random()*65));
+    if(chance(.55)) startSpamWave(rnd([val.slice(0,42),rnd(eventPools.funny),rnd(allEmotes())]),.65);
     $('#contextInput').value='';
   }
 
@@ -2475,26 +2979,38 @@
   }
 
   function manualSend(){
-    const inp=$('#manualMessage');
-    const val=inp.value.trim();
-    if(!val) return;
-    addChat(val,{user:'STREAMER',color:'#9147ff',badges:[['mod','M'],['og','★']]});
+    const inp=$('#manualMessage'),val=inp.value.trim();if(!val)return;
+    const n=creatorProfile.name||'STREAMER';
+    addChat(val,{user:n,color:'#9147ff',badges:[['mod','M'],['og','★']],raw:true,noReply:true,kind:'mention'});
+    if(val.length>8) rememberStatement(val,false);
     inp.value='';
   }
 
   function updateLabels(){
-    const s=Number(speedSlider.value);
-    $('#speedText').textContent = s<25?'Slow':s<50?'Normal':s<78?'Fast':'Insane';
-    const d=Number(donationSlider.value);
-    $('#donationText').textContent = d<15?'Rare':d<45?'Medium':d<75?'Frequent':'Very frequent';
-    const r=Number(roastSlider.value);
-    $('#roastText').textContent = r<15?'Friendly':r<45?'Balanced':r<75?'Spicy':'Savage';
-    $('#viewerBaseText').textContent = Math.round(Number(viewerBaseSlider.value)/1000)+'K';
+    const s=Number(speedSlider.value);$('#speedText').textContent=s<25?'Slow':s<50?'Normal':s<78?'Fast':'Insane';
+    const d=Number(donationSlider.value);$('#donationText').textContent=d<15?'Rare':d<45?'Medium':d<75?'Frequent':'Very frequent';
+    const r=Number(roastSlider.value);$('#roastText').textContent=r<15?'Friendly':r<45?'Balanced':r<75?'Spicy':'Savage';
+    $('#viewerBaseText').textContent=Math.round(Number(viewerBaseSlider.value)/1000)+'K';
+    const sr=Number(subRateSlider?.value||42);$('#subRateText').textContent=sr<18?'Rare':sr<50?'Medium':sr<78?'Frequent':'Gift-crazy';
+    $('#irrelevantRateText').textContent=Number(irrelevantRateSlider?.value||8)+'%';
   }
 
   speedSlider.addEventListener('input',()=>{updateLabels();scheduleNext()});
   donationSlider.addEventListener('input',updateLabels);
   roastSlider.addEventListener('input',updateLabels);
+  subRateSlider.addEventListener('input',updateLabels);
+  irrelevantRateSlider.addEventListener('input',updateLabels);
+  chatFilterEl.addEventListener('change',applyChatFilter);
+  soundBtnEl.addEventListener('click',()=>{soundEnabled=!soundEnabled;soundBtnEl.textContent=soundEnabled?'🔊':'🔇';if(soundEnabled)playTone('sub');});
+  $('#saveProfileBtn').addEventListener('click',saveCreatorProfile);
+  $('#clearMemoryBtn').addEventListener('click',()=>{streamMemories=[];insideJokes=[];saveSessionMemory();renderMemoryChips();addSystem('Stream memory and inside jokes cleared.');});
+  $('#updateFactsBtn').addEventListener('click',()=>{streamFacts=liveFactsInput.value.trim();savePersistentContext();updateContextLabels();addSystem(streamFacts?`Live facts updated: ${streamFacts}`:'Live facts cleared.');if(streamFacts)for(let i=0;i<10;i++)setTimeout(()=>!paused&&addChat(parseLiveFactsMessage()||persistentTopicMessage(),{noReply:true}),i*75);});
+  liveFactsInput.addEventListener('keydown',e=>{if(e.key==='Enter')$('#updateFactsBtn').click();});
+  $('#pollBtn').addEventListener('click',()=>startPoll('poll'));
+  $('#predictionBtn').addEventListener('click',()=>startPoll('prediction'));
+  $('#pinContextBtn').addEventListener('click',()=>pinMessage(`${activityDetail||activityLabels[activityMode]}${streamFacts?' • '+streamFacts:''}`,30000));
+  fullscreenChatBtn.addEventListener('click',()=>setChatOnly(!document.body.classList.contains('chat-only')));
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('chat-only'))setChatOnly(false);});
   viewerBaseSlider.addEventListener('input',()=>{
     updateLabels();
     const base=Number(viewerBaseSlider.value);
@@ -2525,17 +3041,22 @@
   });
   $('#burstBtn').addEventListener('click',randomBurst);
   $('#donateBtn').addEventListener('click',()=>addDonation(true));
-  $('#clearBtn').addEventListener('click',()=>feed.innerHTML='');
+  $('#subBtn').addEventListener('click',()=>addSubEvent(chance(.42)?'gift':null));
+  $('#clearBtn').addEventListener('click',()=>{feed.innerHTML='';recentChatLog=[];});
   $('#sendBtn').addEventListener('click',manualSend);
   $('#manualMessage').addEventListener('keydown',e=>{if(e.key==='Enter')manualSend()});
 
-  // Restore the user's persistent stream topic across refreshes / GitHub Pages visits.
+  // Restore persistent context, community, streamer lore and memories.
   loadPersistentContext();
-  activityDetailInput.value = activityDetail;
-  document.querySelectorAll('.activity-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.activity === activityMode);
-  });
+  loadCreatorProfile();
+  loadSessionMemory();
+  initRegulars();
+  activityDetailInput.value=activityDetail;
+  liveFactsInput.value=streamFacts;
+  document.querySelectorAll('.activity-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.activity===activityMode));
   updateContextLabels();
+  renderMemoryChips();
+  renderQuickActions();
   initChatOnlyFromURL();
 
   // Seed the chat so it looks alive immediately.
@@ -2557,7 +3078,7 @@
         'I got snacks im locked in','what are we doing first','W notification gang',
         'bro has half the internet in here','mods good luck tonight 😭','LETS GOOOO'
       ];
-  seed.forEach((m,i)=>setTimeout(()=>addChat(m),i*90));
+  seed.forEach((m,i)=>setTimeout(()=>addChat(m,{chatter:pickChatter({regular:i%2===0}),noReply:i<5}),i*90));
   setTimeout(()=>addDonation(true),1050);
   setTimeout(()=>addSystem(activityDetail
     ? `Persistent context active: ${activityDetail}. It will stay active until you change it.`
@@ -2565,8 +3086,12 @@
 
   updateLabels();
   updateViewerUI();
+  followStatEl.textContent='+0';
+  subStatEl.textContent='0';
   scheduleNext();
-  viewerTimer = setInterval(viewerTick, 1300);
+  viewerTimer=setInterval(viewerTick,1300);
+  setInterval(()=>{if(!paused&&chance(.20)&&streamMemories.length)addChat(memoryMessage(),{noReply:true});},22000);
+  setInterval(()=>{if(!paused&&chance(.30))maybeModAction();},15000);
 })();
 </script>
 </body>
